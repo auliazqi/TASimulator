@@ -1,0 +1,422 @@
+/* Import Bootstrap Icons */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+.monitoring-app {
+  background-color: #f0f0f0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 12px;
+  min-height: 100vh;
+}
+
+/* Connection Status */
+.connection-status {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  color: white;
+  font-weight: bold;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.connection-status.connected {
+  background-color: #28a745;
+}
+
+.connection-status.disconnected {
+  background-color: #dc3545;
+}
+
+/* Main Container */
+.main-container {
+  background: white;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  margin: 10px;
+  padding: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Title Bar */
+.title-bar {
+  background: linear-gradient(to bottom, #f0f0f0, #e0e0e0);
+  border: 1px solid #ccc;
+  padding: 8px 12px;
+  margin: -15px -15px 15px -15px;
+  border-radius: 6px 6px 0 0;
+  font-weight: bold;
+  font-size: 14px;
+  color: #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Tank Visualization */
+.tank-container {
+  position: relative;
+  width: 180px;
+  height: 220px;
+  margin: 0 auto;
+}
+
+.tank {
+  position: relative;
+  width: 80px;
+  height: 160px;
+  border: 3px solid #333;
+  border-radius: 0 0 10px 10px;
+  background: linear-gradient(to bottom, #e0e0e0, #f0f0f0);
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.tank-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(to top, #ff6b6b, #ffa500, #ffff00);
+  transition: height 0.5s ease-in-out;
+  border-radius: 0 0 7px 7px;
+}
+
+.tank-temperature-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: bold;
+  font-size: 14px;
+  color: #333;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.temperature-indicator {
+  position: absolute;
+  right: -30px;
+  top: 0;
+  height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+/* Pressure Gauge */
+.gauge-container {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+}
+
+.gauge {
+  position: relative;
+  width: 200px;
+  height: 100px;
+  border: 4px solid #333;
+  border-bottom: none;
+  border-radius: 100px 100px 0 0;
+  background: linear-gradient(90deg, #ff0000 0%, #ffff00 50%, #00ff00 100%);
+  overflow: hidden;
+}
+
+.gauge-scale {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-conic-gradient(
+    from 0deg at 50% 100%,
+    transparent 0deg 9deg,
+    #333 9deg 10deg
+  );
+}
+
+.gauge-needle {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  height: 80px;
+  background: #ff0000;
+  transform-origin: bottom center;
+  transform: translateX(-50%) rotate(0deg);
+  transition: transform 0.5s ease-in-out;
+  z-index: 10;
+}
+
+.gauge-center {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border: 2px solid #333;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.gauge-value {
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.gauge-unit {
+  font-size: 10px;
+  color: #666;
+}
+
+/* Control Panels */
+.control-panel, .status-panel {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 15px;
+}
+
+.control-panel h6, .status-panel h6 {
+  color: #495057;
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+/* Readings Display */
+.readings-display {
+  background: #343a40;
+  color: #00ff00;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  text-align: center;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Status Indicators */
+.status-indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #28a745;
+  margin-right: 8px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* Status Badges */
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.status-badge.normal {
+  background-color: #28a745;
+  color: white;
+}
+
+.status-badge.high {
+  background-color: #dc3545;
+  color: white;
+}
+
+.status-badge.low {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+/* Data Tables */
+.data-table {
+  font-size: 11px;
+}
+
+.data-table th {
+  background-color: #495057;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  padding: 8px 4px;
+}
+
+.data-table td {
+  padding: 6px 4px;
+  text-align: center;
+  border: 1px solid #dee2e6;
+}
+
+.data-table tbody tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+.data-table tbody tr:hover {
+  background-color: #e9ecef;
+}
+
+/* Control Buttons */
+.control-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.control-buttons .btn {
+  flex: 1;
+  font-size: 11px;
+}
+
+/* Chart Container */
+.chart-container {
+  position: relative;
+  height: 300px;
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 10px;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Data Refresh Indicator */
+.data-refresh-indicator {
+  display: flex;
+  align-items: center;
+}
+
+/* Tab Navigation */
+.nav-tabs {
+  border-bottom: 2px solid #dee2e6;
+  margin-bottom: 0;
+}
+
+.nav-tabs .nav-link {
+  border: none;
+  border-radius: 0;
+  color: #495057;
+  font-weight: bold;
+  padding: 12px 20px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+  background-color: #e9ecef;
+  border-color: transparent;
+}
+
+.nav-tabs .nav-link.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.nav-tabs .nav-link i {
+  margin-right: 8px;
+}
+
+/* Tab Content */
+.tab-content {
+  background: transparent;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .tank-container {
+    width: 150px;
+    height: 180px;
+  }
+
+  .tank {
+    width: 60px;
+    height: 120px;
+  }
+
+  .gauge-container {
+    width: 150px;
+    height: 150px;
+  }
+
+  .gauge {
+    width: 150px;
+    height: 75px;
+  }
+
+  .control-buttons {
+    flex-direction: column;
+  }
+
+  .chart-container {
+    height: 250px;
+  }
+}
+
+/* Form Controls */
+.form-control, .form-select {
+  font-size: 11px;
+}
+
+.form-label {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+/* Alerts */
+.alert {
+  padding: 8px 12px;
+  font-size: 11px;
+  margin-bottom: 10px;
+}
+
+/* Buttons */
+.btn-sm {
+  padding: 4px 8px;
+  font-size: 11px;
+}
+
+/* Badge Styling */
+.badge {
+  font-size: 10px;
+}

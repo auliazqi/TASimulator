@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control and Monitoring Temperature</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Connection Status Indicator -->
+    <div id="connectionStatus" class="connection-status disconnected">
+        <i class="fas fa-database"></i> Database Disconnected
+    </div>
+
+    <div class="container-fluid">
+        <ul class="nav nav-tabs" id="mainTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="temperature-tab" data-bs-toggle="tab" data-bs-target="#temperature-panel" type="button" role="tab">
+                    <i class="fas fa-thermometer-half"></i> Temperature Control
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pressure-tab" data-bs-toggle="tab" data-bs-target="#pressure-panel" type="button" role="tab">
+                    <i class="fas fa-tachometer-alt"></i> Pressure Monitoring
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="database-tab" data-bs-toggle="tab" data-bs-target="#database-panel" type="button" role="tab">
+                    <i class="fas fa-database"></i> Database
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="mainTabContent">
+            <!-- Temperature Control Panel -->
+            <div class="tab-pane fade show active" id="temperature-panel" role="tabpanel">
+                <div class="main-container">
+                    <div class="title-bar">
+                        <i class="fas fa-cog"></i> CONTROL AND MONITORING TEMPERATURE
+                        <div class="data-refresh-indicator" id="tempRefreshIndicator">
+                            <div class="loading-spinner"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <!-- Left: Tank and Controls -->
+                        <div class="col-lg-3 col-md-4">
+                            <div class="tank-container">
+                                <div class="tank" id="temperatureTank">
+                                    <div class="tank-fill" id="tankFill"></div>
+                                    <div class="tank-temperature-label" id="tankTempLabel">--°C</div>
+                                </div>
+                                <div class="temperature-indicator">
+                                    <div>HOT</div>
+                                    <div>30°C</div>
+                                    <div style="margin: 10px 0;">|</div>
+                                    <div style="margin: 10px 0;">|</div>
+                                    <div style="margin: 10px 0;">|</div>
+                                    <div>COLD</div>
+                                    <div>20°C</div>
+                                </div>
+                            </div>
+                            <div class="control-buttons">
+                                <button class="btn btn-primary btn-sm" onclick="loadTemperatureData()">
+                                    <i class="fas fa-sync"></i> Refresh Data
+                                </button>
+                                <button class="btn btn-info btn-sm" onclick="toggleAutoRefresh('temperature')">
+                                    <i class="fas fa-pause" id="tempAutoRefreshIcon"></i> <span id="tempAutoRefreshText">Stop Auto</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Center: Control Parameters -->
+                        <div class="col-lg-4 col-md-4">
+                            <div class="control-panel">
+                                <h6 class="mb-3"><i class="fas fa-sliders-h"></i> Live Readings</h6>
+                                <div class="row mb-2">
+                                    <div class="col-6">
+                                        <label class="form-label" style="font-size: 11px;">Current Temp:</label>
+                                        <div class="readings-display" id="currentTempDisplay">--°C</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label" style="font-size: 11px;">Last Setpoint:</label>
+                                        <div class="readings-display" id="lastSetpointDisplay">--°C</div>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-6">
+                                        <label class="form-label" style="font-size: 11px;">Avg Error:</label>
+                                        <div class="readings-display" id="avgErrorDisplay">--%</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label" style="font-size: 11px;">Data Points:</label>
+                                        <div class="readings-display" id="dataPointsDisplay">0</div>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-12">
+                                        <label class="form-label" style="font-size: 11px;">Auto Refresh:</label>
+                                        <select class="form-select form-select-sm" id="refreshInterval" onchange="updateRefreshInterval()">
+                                            <option value="5000">5 seconds</option>
+                                            <option value="10000">10 seconds</option>
+                                            <option value="30000">30 seconds</option>
+                                            <option value="60000">1 minute</option>
+                                            <option value="0">Manual only</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary btn-sm w-100 mb-2" onclick="exportTemperatureData()">
+                                    <i class="fas fa-download"></i> Export Temperature Data
+                                </button>
+                            </div>
+
+                            <div class="status-panel">
+                                <h6 class="mb-2"><i class="fas fa-info-circle"></i> System Status</h6>
+                                <div class="mb-2">
+                                    <span class="status-indicator" id="tempStatusLight"></span>
+                                    <span id="tempStatusText">Loading...</span>
+                                </div>
+                                <div class="mb-2">
+                                    <span class="status-indicator" id="dbStatusLight"></span>
+                                    <span id="dbStatusText">Database: Checking...</span>
+                                </div>
+                                <div class="mb-2">
+                                    <small class="text-muted">Last Update:</small><br>
+                                    <span id="tempLastUpdate">--:--:--</span>
+                                </div>
+                                <div>
+                                    <small class="text-muted">Total Records:</small><br>
+                                    <span id="tempTotalRecords">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Data Table -->
+                        <div class="col-lg-5 col-md-4">
+                            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                                <table class="table table-bordered data-table">
+                                    <thead class="sticky-top">
+                                        <tr>
+                                            <th>Time</th>
+                                            <th>Value (°C)</th>
+                                            <th>Setpoint (°C)</th>
+                                            <th>Error (%)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tempDataTableBody">
+                                        <tr>
+                                            <td colspan="4" class="text-center">
+                                                <div class="loading-spinner"></div> Loading data...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Temperature Chart -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="chart-container">
+                                <canvas id="temperatureChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pressure Monitoring Panel -->
+            <div class="tab-pane fade" id="pressure-panel" role="tabpanel">
+                <div class="main-container">
+                    <div class="title-bar">
+                        <i class="fas fa-tachometer-alt"></i> SAFETY PRESSURE MONITORING SYSTEM
+                        <div class="data-refresh-indicator" id="pressureRefreshIndicator">
+                            <div class="loading-spinner"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <!-- Left: Pressure Gauge -->
+                        <div class="col-lg-4 col-md-6">
+                            <div class="gauge-container">
+                                <div class="gauge">
+                                    <div class="gauge-scale"></div>
+                                    <div class="gauge-needle" id="pressureNeedle"></div>
+                                    <div class="gauge-center">
+                                        <div class="gauge-value" id="gaugeValue">--</div>
+                                        <div class="gauge-unit">Bar</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center mt-2">
+                                <h6>Current Pressure: <span id="pressureValue">--</span> Bar</h6>
+                                <small class="text-muted">Range: 0-2 Bar</small>
+                            </div>
+                            <div class="control-buttons mt-3">
+                                <button class="btn btn-primary btn-sm" onclick="loadPressureData()">
+                                    <i class="fas fa-sync"></i> Refresh Data
+                                </button>
+                                <button class="btn btn-info btn-sm" onclick="toggleAutoRefresh('pressure')">
+                                    <i class="fas fa-pause" id="pressureAutoRefreshIcon"></i> <span id="pressureAutoRefreshText">Stop Auto</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Center: Status Information -->
+                        <div class="col-lg-4 col-md-6">
+                            <div class="status-panel">
+                                <h6 class="mb-3"><i class="fas fa-chart-line"></i> Live Readings</h6>
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Current Pressure:</span>
+                                        <span id="currentPressureDisplay">-- Bar</span>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Last Setpoint:</span>
+                                        <span id="pressureSetpointDisplay">-- Bar</span>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Avg Error:</span>
+                                        <span id="pressureAvgErrorDisplay">--%</span>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Data Points:</span>
+                                        <span id="pressureDataPointsDisplay">0</span>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Last Update:</span>
+                                        <span id="pressureLastUpdate">--:--:--</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Total Records:</span>
+                                        <span id="pressureTotalRecords">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="control-panel mt-3">
+                                <h6 class="mb-3"><i class="fas fa-cogs"></i> Export Options</h6>
+                                <button class="btn btn-info btn-sm w-100" onclick="exportPressureData()">
+                                    <i class="fas fa-file-excel"></i> Export Pressure Data
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Right: Recent Data Table -->
+                        <div class="col-lg-4 col-md-12">
+                            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                                <table class="table tabl    e-bordered data-table">
+                                    <thead class="sticky-top">
+                                        <tr>
+                                            <th>Time</th>
+                                            <th>Pressure (Bar)</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="pressureDataTableBody">
+                                        <tr>
+                                            <td colspan="3" class="text-center">
+                                                <div class="loading-spinner"></div> Loading data...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pressure Chart -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="chart-container">
+                                <canvas id="pressureChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Database Panel -->
+            <div class="tab-pane fade" id="database-panel" role="tabpanel">
+                <div class="main-container">
+                    <div class="title-bar">
+                        <i class="fas fa-database"></i> DATABASE MANAGEMENT
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="control-panel">
+                                <h6 class="mb-3"><i class="fas fa-thermometer-half"></i> Temperature Records</h6>
+                                <div class="mb-3">
+                                    <button class="btn btn-success btn-sm w-100 mb-1" onclick="loadAllTemperatureRecords()">
+                                        <i class="fas fa-sync"></i> Load All Records
+                                    </button>
+                                    <button class="btn btn-warning btn-sm w-100 mb-1" onclick="loadRecentRecords('temperature', 100)">
+                                        <i class="fas fa-clock"></i> Load Recent (100)
+                                    </button>
+                                    <button class="btn btn-danger btn-sm w-100 mb-1" onclick="confirmClearRecords('temperature')">
+                                        <i class="fas fa-trash"></i> Clear All Records
+                                    </button>
+                                </div>
+                                <div id="tempRecordCount" class="alert alert-info">Records: Loading...</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="control-panel">
+                                <h6 class="mb-3"><i class="fas fa-tachometer-alt"></i> Pressure Records</h6>
+                                <div class="mb-3">
+                                    <button class="btn btn-success btn-sm w-100 mb-1" onclick="loadAllPressureRecords()">
+                                        <i class="fas fa-sync"></i> Load All Records
+                                    </button>
+                                    <button class="btn btn-warning btn-sm w-100 mb-1" onclick="loadRecentRecords('pressure', 100)">
+                                        <i class="fas fa-clock"></i> Load Recent (100)
+                                    </button>
+                                    <button class="btn btn-danger btn-sm w-100 mb-1" onclick="confirmClearRecords('pressure')">
+                                        <i class="fas fa-trash"></i> Clear All Records
+                                    </button>
+                                </div>
+                                <div id="pressureRecordCount" class="alert alert-info">Records: Loading...</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="control-panel">
+                                <h6 class="mb-3"><i class="fas fa-filter"></i> Filters</h6>
+                                <div class="mb-2">
+                                    <label class="form-label" style="font-size: 11px;">Date Range:</label>
+                                    <input type="date" class="form-control form-control-sm mb-1" id="filterDateFrom">
+                                    <input type="date" class="form-control form-control-sm" id="filterDateTo">
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label" style="font-size: 11px;">Record Type:</label>
+                                    <select class="form-select form-select-sm" id="filterRecordType">
+                                        <option value="">All Types</option>
+                                        <option value="temperature">Temperature</option>
+                                        <option value="pressure">Pressure</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-primary btn-sm w-100" onclick="applyDatabaseFilters()">
+                                    <i class="fas fa-search"></i> Apply Filters
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                                <table class="table table-bordered data-table" id="databaseTable">
+                                    <thead class="sticky-top">
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Type</th>
+                                            <th>Timestamp</th>
+                                            <th>Value</th>
+                                            <th>Setpoint</th>
+                                            <th>Error (%)</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="databaseTableBody">
+                                        <tr>
+                                            <td colspan="7" class="text-center">
+                                                <div class="loading-spinner"></div> Loading database records...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/script.js">
+    </script>
+</body>
+</html>

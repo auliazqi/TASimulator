@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Site System - Authentication</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .left-panel {
+            flex: 0 0 400px;
+            background: white;
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .right-panel {
+            flex: 1;
+            background: linear-gradient(135deg, #e8f0f7 0%, #f5f8fa 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .illustration {
+            width: 90%;
+            max-width: 800px;
+            height: auto;
+            position: relative;
+        }
+
+        /* 3D Industrial Scene */
+        .scene-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1200px;
+        }
+
+        .industrial-scene {
+            width: 800px;
+            height: 600px;
+            position: relative;
+            transform: rotateX(60deg) rotateZ(-45deg) scale(0.8);
+            transform-style: preserve-3d;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: rotateX(60deg) rotateZ(-45deg) scale(0.8) translateY(0px); }
+            50% { transform: rotateX(60deg) rotateZ(-45deg) scale(0.8) translateY(-15px); }
+        }
+
+        /* Base platform */
+        .base-platform {
+            position: absolute;
+            width: 600px;
+            height: 400px;
+            background: linear-gradient(135deg, #f0f4f8 0%, #e1e8ed 100%);
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) translateZ(-50px);
+            border-radius: 12px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+        }
+
+        /* Storage tanks */
+        .tank {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffffff 0%, #f0f4f8 100%);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1),
+                        inset 0 -5px 10px rgba(0,0,0,0.05);
+            transform-style: preserve-3d;
+        }
+
+        .tank::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70%;
+            height: 70%;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), transparent);
+        }
+
+        .tank1 {
+            width: 100px;
+            height: 100px;
+            left: 80px;
+            top: 100px;
+            transform: translateZ(30px);
+            animation: spin1 15s linear infinite;
+        }
+
+        .tank2 {
+            width: 90px;
+            height: 90px;
+            left: 450px;
+            top: 280px;
+            transform: translateZ(25px);
+            animation: spin2 12s linear infinite;
+        }
+
+        .tank3 {
+            width: 80px;
+            height: 80px;
+            left: 150px;
+            top: 320px;
+            transform: translateZ(20px);
+            animation: spin1 18s linear infinite reverse;
+        }
+
+        @keyframes spin1 {
+            0% { transform: translateZ(30px) rotate(0deg); }
+            100% { transform: translateZ(30px) rotate(360deg); }
+        }
+
+        @keyframes spin2 {
+            0% { transform: translateZ(25px) rotate(0deg); }
+            100% { transform: translateZ(25px) rotate(360deg); }
+        }
+
+        /* Blue pipelines/conveyors */
+        .pipeline {
+            position: absolute;
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4),
+                        inset 0 -2px 8px rgba(0,0,0,0.2);
+            transform-style: preserve-3d;
+        }
+
+        .pipe-horizontal {
+            height: 45px;
+            border-radius: 6px;
+            transform: translateZ(60px);
+        }
+
+        .pipe1 {
+            width: 350px;
+            left: 200px;
+            top: 180px;
+        }
+
+        .pipe2 {
+            width: 280px;
+            left: 150px;
+            top: 260px;
+        }
+
+        .pipe-vertical {
+            width: 35px;
+            border-radius: 6px;
+            transform: translateZ(50px);
+        }
+
+        .pipe3 {
+            height: 150px;
+            left: 380px;
+            top: 100px;
+        }
+
+        /* Buildings/structures */
+        .building {
+            position: absolute;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.12);
+            border-radius: 4px;
+            transform-style: preserve-3d;
+        }
+
+        .main-facility {
+            width: 200px;
+            height: 120px;
+            left: 250px;
+            top: 150px;
+            transform: translateZ(45px);
+        }
+
+        .building2 {
+            width: 140px;
+            height: 90px;
+            left: 420px;
+            top: 200px;
+            transform: translateZ(40px);
+        }
+
+        .building3 {
+            width: 100px;
+            height: 80px;
+            left: 120px;
+            top: 220px;
+            transform: translateZ(35px);
+        }
+
+        /* Support structures */
+        .support {
+            position: absolute;
+            width: 8px;
+            height: 60px;
+            background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+            border-radius: 2px;
+            transform-style: preserve-3d;
+        }
+
+        .support1 {
+            left: 200px;
+            top: 140px;
+            transform: translateZ(0px);
+        }
+
+        .support2 {
+            left: 380px;
+            top: 170px;
+            transform: translateZ(0px);
+        }
+
+        .support3 {
+            left: 480px;
+            top: 250px;
+            transform: translateZ(0px);
+        }
+
+        /* Animated glow effect on pipelines */
+        @keyframes glow-pulse {
+            0%, 100% { box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4), inset 0 -2px 8px rgba(0,0,0,0.2); }
+            50% { box-shadow: 0 8px 32px rgba(37, 99, 235, 0.6), inset 0 -2px 8px rgba(0,0,0,0.2); }
+        }
+
+        .pipeline {
+            animation: glow-pulse 3s ease-in-out infinite;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            color: #64748b;
+            font-size: 13px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input[type="email"],
+        input[type="password"],
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+            cursor: pointer;
+            accent-color: #3b82f6;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .footer-link {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .footer-link a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer-link a:hover {
+            text-decoration: underline;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @media (max-width: 968px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .left-panel {
+                flex: 0 0 auto;
+                min-height: 100vh;
+            }
+
+            .right-panel {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <!-- Register Page -->
+            <div id="register-page" class="page active">
+                <h1>SIGN UP</h1>
+                <p class="subtitle">Welcome</p>
+                
+                <form onsubmit="return false;">
+                    <div class="form-group">
+                        <label>E-mail</label>
+                        <input type="email" placeholder="yatingzang0215@gmail.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" placeholder="••••••••••">
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="terms" checked>
+                        <label for="terms">I agree to the terms of service</label>
+                    </div>
+                    
+                    <button class="btn-primary">Create Account</button>
+                    
+                    <div class="footer-link">
+                        Already a member? <a href="#" onclick="showLogin()">Sign in</a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Login Page -->
+            <div id="login-page" class="page">
+                <h1>SIGN IN</h1>
+                <p class="subtitle">Welcome back! Please sign in to access the Smart Site System for Oil Depots.</p>
+                
+                <form onsubmit="return false;">
+                    <div class="form-group">
+                        <label>E-mail</label>
+                        <input type="email" placeholder="yatingzang0215@gmail.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" placeholder="••••••••••">
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="remember">
+                        <label for="remember">Remember me</label>
+                    </div>
+                    
+                    <button class="btn-primary">Sign In</button>
+                    
+                    <div class="footer-link">
+                        Don't have an account? <a href="#" onclick="showRegister()">Sign up</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="scene-container">
+                <div class="industrial-scene">
+                    <!-- Base platform -->
+                    <div class="base-platform"></div>
+                    
+                    <!-- Storage tanks -->
+                    <div class="tank tank1"></div>
+                    <div class="tank tank2"></div>
+                    <div class="tank tank3"></div>
+                    
+                    <!-- Blue pipelines/conveyors -->
+                    <div class="pipeline pipe-horizontal pipe1"></div>
+                    <div class="pipeline pipe-horizontal pipe2"></div>
+                    <div class="pipeline pipe-vertical pipe3"></div>
+                    
+                    <!-- Buildings/structures -->
+                    <div class="building main-facility"></div>
+                    <div class="building building2"></div>
+                    <div class="building building3"></div>
+                    
+                    <!-- Support structures -->
+                    <div class="support support1"></div>
+                    <div class="support support2"></div>
+                    <div class="support support3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showLogin() {
+            document.getElementById('register-page').classList.remove('active');
+            document.getElementById('login-page').classList.add('active');
+        }
+
+        function showRegister() {
+            document.getElementById('login-page').classList.remove('active');
+            document.getElementById('register-page').classList.add('active');
+        }
+    </script>
+</body>
+</html>
